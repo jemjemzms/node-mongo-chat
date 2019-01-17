@@ -10,7 +10,7 @@ mongo.connect('mongodb://mongouser:boxing123@ds121495.mlab.com:21495/mongochat_d
   console.log('MongoDB connected...');
 
   // Connect to Socket.io
-  client.on('connection', function(){
+  client.on('connection', function(socket){
     let chat = db.collection('chats');
 
     // Create function to send status
@@ -59,7 +59,7 @@ mongo.connect('mongodb://mongouser:boxing123@ds121495.mlab.com:21495/mongochat_d
         socket.emit('cleared');
       });
     });
-    
+
   });
 });
 
