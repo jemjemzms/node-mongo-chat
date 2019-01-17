@@ -11,10 +11,11 @@ mongo.connect('mongodb://mongouser:boxing123@ds121495.mlab.com:21495/mongochat_d
 
   // Connect to Socket.io
   client.on('connection', function(socket){
+
     let chat = db.collection('chats');
 
     // Create function to send status
-    sendStatus = function(){
+    sendStatus = function(s){
       socket.emit('status', s);
     }
 

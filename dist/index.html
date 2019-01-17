@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Node Mongo Chat</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" >
+  <link rel="stylesheet" href="style.css" >
+</head>
+<body>
+    <div class="container clearfix">
+      <div class="option-list" id="option-list">
+          <div class="search">
+            <input type="text" id="username" class="form-control" placeholder="Enter a name..." />
+            <i class="fa fa-user"></i>
+          </div>
+          <ul class="list">
+            <li class="clearfix">
+              <div class="about">
+                <div class="name">Clear Messages</div>
+                <div class="status">
+                    <button id="clear" class="btn btn-danger">Clear</button>
+                </div>
+              </div>
+            </li>
+            <li class="clearfix">
+                <div class="about">
+                  <div class="name">Status</div>
+                  <div class="status">
+                      <div id="status" class="status__message"></div>
+                  </div>
+                </div>
+              </li>
+          </ul>
+        </div>
+        <div class="chat">
+          <div class="chat-header clearfix">
+            <img src="https://media.licdn.com/dms/image/C4E03AQEc9re9DXlWNw/profile-displayphoto-shrink_200_200/0?e=1553126400&v=beta&t=g-RmyfW1weIeEMAowgEBhHLbtyPBy86gBH21-qp6O-Y" class="avatar" alt="avatar" />
+            <div class="chat-about">
+              <div class="chat-with">Welcome to Node Mongo Chat</div>
+              <div class="chat-num-messages"><span id="message-count"></span></div>
+            </div>
+            <i class="fa fa-star"></i>
+          </div> <!-- end chat-header -->
+          
+          <div class="chat-history">
+            <ul id="messages">
+
+            </ul>
+
+            
+          </div> <!-- end chat-history -->
+          
+          <div class="chat-message clearfix">
+            <textarea name="message-to-send" id="textarea" placeholder ="Type your message" rows="3"></textarea>
+   
+            <button id="send">Send</button>
+    
+          </div> <!-- end chat-message -->
+          
+        </div> <!-- end chat -->
+        
+      </div> <!-- end container -->
+    
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.dev.js"></script>
+  
+  <script>
+    (function(){
+      var element = function(id){
+        return document.getElementById(id);
+      }
+
+      // Get Elements
+      var status   = element('status');
+      var messages = element('messages');
+      var textarea = element('textarea');
+      var username = element('username');
+      var clearBtn = element('clear');
+      var sendBtn  = element('send');
+      var messageCount = element('message-count');
+
+      // Set default status
+      var statusDefault = status.textContent;
+
+      var setStatus = function(s){
+
+        // Set status
+        status.textContent = s;
+
+        if (s !== statusDefault){
+          var delay = setTimeout(function(){
+            setStatus(statusDefault);
+          }, 4000);
+        }
+      }
+
+      // Connect to socket.io
+      //var socket = io.connect('http://127.0.0.1:4000');
+      var socket = io.connect('http://node-mongo-chat.netlify.com:4000');
+
+      // Check for connection
+      if (socket !== undefined) {
+        console.log('Connected to socket...');
+
+        // Handle Output
+        socket.on('output', function(data){
+          //console.log(data);
+
+          if (data.length){
+
+            messageCount.innerText = 'Already ' + data.length + ' message(s)';
+            for (var x = 0;x < data.length; x++){
+
+              let messageItem = '';
+              
+              // Build out message div
+                messageItem = `
+                  <li class="clearfix">
+                    <div class="message-data align-right">
+                      <span class="message-data-name">`+data[x].name+`</span> <i class="fa fa-circle me"></i>
+                    </div>
+                    <div class="message other-message float-right">
+                        `+data[x].message+`
+                    </div>
+                  </li>
+                `;
+
+               /* messageItem = `
+                  <li>
+                    <div class="message-data">
+                      <span class="message-data-name">`+data[x].name+`</span> <i class="fa fa-circle"></i>
+                    </div>
+                    <div class="message my-message">
+                      `+data[x].message+`
+                    </div>
+                  </li>
+                `;*/
+
+              let doc = new DOMParser().parseFromString(messageItem, 'text/html');
+              message = doc.body.firstChild;
+
+              messages.appendChild(message);
+              messages.insertBefore(message, messages.firstChild);
+            }
+          } else {
+            messageCount.innerText = 'No message yet';
+          }
+        });
+
+        // Get Status from Server
+        socket.on('status', function(data){
+          // get message status
+          setStatus((typeof data === 'object') ? data.message : data);
+
+          // If status is clear, clear text
+          if (data.clear){
+            textarea.value = '';
+          }
+
+        });
+
+        // Handle Input
+        textarea.addEventListener('keydown', function(event){
+          if (event.which === 13 && event.shiftKey == false){
+            // Emit to server input
+            socket.emit('input', {
+              name: username.value,
+              message: textarea.value
+            });
+
+            event.preventDefault();
+          }
+        });
+
+        sendBtn.addEventListener("click", function(event){
+            // Emit to server input
+            socket.emit('input', {
+              name: username.value,
+              message: textarea.value
+            });
+
+            event.preventDefault();
+        });
+
+        // Handle Chat Clear
+        clearBtn.addEventListener('click', function(){
+          socket.emit('clear');
+        });
+
+        // Clear Message
+        socket.on('cleared', function(){
+          messages.textContent = '';
+          messageCount.innerText = 'No message yet';
+        });
+
+      }
+
+    })();  
+  </script>
+</body>
+</html>
