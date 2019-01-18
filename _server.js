@@ -1,17 +1,5 @@
-var http = require('http');
-var fs = require('fs');
 const mongo = require('mongodb').MongoClient;
-//const client = require('socket.io').listen(5000).sockets;
-
-// Loading the index file . html displayed to the client
-var server = http.createServer(function(req, res) {
-  fs.readFile('./dist/index.html', 'utf-8', function(error, content) {
-      res.writeHead(200, {"Content-Type": "text/html"});
-      res.end(content);
-  });
-});
-
-var client = require('socket.io').listen(server);
+const client = require('socket.io').listen(5000).sockets;
 
 // Connect to mongo
 mongo.connect('mongodb://mongouser:boxing123@ds121495.mlab.com:21495/mongochat_db', function(err, db){
@@ -19,7 +7,7 @@ mongo.connect('mongodb://mongouser:boxing123@ds121495.mlab.com:21495/mongochat_d
     throw err;
   }
 
-  console.log('MongoDB connected...');
+  console.log('MongoDB connected 2...');
 
   // Connect to Socket.io
   client.on('connection', function(socket){
@@ -76,4 +64,4 @@ mongo.connect('mongodb://mongouser:boxing123@ds121495.mlab.com:21495/mongochat_d
   });
 });
 
-server.listen(4002 || 5000);
+
