@@ -19,4 +19,4 @@ A simple Node.js chat application that uses a MongoDB database to store messages
 ## 💫 Links
 
 [Socket.io](https://socket.io) <br />
-[See Demo](http://nodechat.ricdiaz.com)
+[See Demo](https://node-mongo-chatapp.herokuapp.com)
