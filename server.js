@@ -76,4 +76,4 @@ mongo.connect('mongodb://mongouser:boxing123@ds121495.mlab.com:21495/mongochat_d
   });
 });
 
-server.listen(4002 || 5000);
+server.listen(process.env.PORT || 5000);
