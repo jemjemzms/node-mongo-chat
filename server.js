@@ -78,4 +78,4 @@ mongo.connect('mongodb://mongouser:boxing123@ds121495.mlab.com:21495/mongochat_d
 
 server.listen(process.env.PORT || 5000);
 
-console.log(process.env.PORT);
+console.log('Listening to port: ' + process.env.PORT);
